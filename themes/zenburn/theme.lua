@@ -12,8 +12,7 @@ theme.wallpaper_cmd = { "awsetbg /usr/share/awesome/themes/zenburn/zenburn-backg
 -- }}}
 
 -- {{{ Styles
-theme.font      = "ubuntu 8"
-
+theme.font      = "sans 8"
 -- {{{ Colors
 theme.fg_normal = "#DCDCCC"
 theme.fg_focus  = "#F0DFAF"
@@ -24,8 +23,10 @@ theme.bg_urgent = "#3F3F3F"
 -- }}}
 
 -- {{{ Borders
-theme.border_width  = "2"
-theme.border_normal = "#3F3F3F"
+theme.border_width  = "1"
+ --theme.border_normal = "#3F3F3F"
+theme.border_normal = theme.bg_focus
+--theme.border_focus  = "#6F6F6F"
 theme.border_focus  = "#6F6F6F"
 theme.border_marked = "#CC9393"
 -- }}}
@@ -124,3 +125,4 @@ theme.titlebar_maximized_button_normal_inactive = "/usr/share/awesome/themes/zen
 -- }}}
 
 return theme
+
