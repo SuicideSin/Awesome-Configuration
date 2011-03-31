@@ -13,6 +13,14 @@ require("debian.menu")
 -- Expose (revelation)
 require("revelation")
 
+-- Initialize required programs -- NOTE: shit sucks, cocks everything up when Awesome needs to restart.
+   -- xcompmgr for transparency support for gnome-do et al
+--awful.util.spawn_with_shell("cairo-compmgr &")
+   -- parallels tools
+--awful.util.spawn_with_shell("/usr/bin/prlcc &")
+   -- gnome settings daemon
+--awful.util.spawn_with_shell("/usr/bin/gnome-settings-daemon &>\"$HOME/.logs/gnome-settings-daemon.log\" &" )
+
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -20,13 +28,14 @@ beautiful.init( "/home/jake/.config/awesome/themes/zenburn/theme.lua" )
 
 -- This is used later as the default terminal and editor to run.
 terminal = "x-terminal-emulator"
-editor = os.getenv("EDITOR") or "gedit"
-editor_cmd = terminal .. " -e " .. editor
+editor = os.getenv("EDITOR") or "/home/jake/bin/gui_editor.sh"
+-- editor_cmd = terminal .. " -e " .. editor
+editor_cmd = editor
 
 -- applications
 
-chrome = "google-chrome"
-veditor = "gedit"
+webbrowser = "/home/jake/bin/surf"
+veditor = "/home/jake/bin/gui_editor.sh"
 filebrowser = "nautilus --no-desktop"
 
 -- Default modkey.
@@ -64,7 +73,7 @@ layouts = {
 --end
 
 tags = {
-	names	= { "main",		"webdev",		"graphic",	"docs",		"social",		6,	7,	8,	"surf"},
+	names	= { "main",		"webdev",		"graphic",	"docs",		"social",		6,	7,	8,	"www"},
 	layout	= { layouts[1],	layouts[1],	layouts[1],	layouts[1],	layouts[6],	layouts[1], layouts[1], layouts[1], layouts[3] }
 }
 
@@ -76,24 +85,52 @@ end
 
 -- {{{ Menu
 -- Create a laucher widget and a main menu
-myawesomemenu = {
-   { "manual", terminal .. " -e man awesome" },
-   { "edit config", editor .. " " .. awful.util.getdir("config") .. "/rc.lua" },
-   { "restart", awesome.restart },
-   { "quit", awesome.quit }
-}
+--myawesomemenu = {
+--   { "manual", terminal .. " -e man awesome" },
+--   { "edit config", editor .. " " .. awful.util.getdir("config") .. "/rc.lua" },
+--   { "restart", awesome.restart },
+--   { "quit", awesome.quit }
+--}
 
-mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "Debian", debian.menu.Debian_menu.Debian },
-                                    { "open terminal", terminal },
-                                    { "Chrome", chrome },
-                                    { "Editor", editor },
-                                    { "Files", filebrowser }
-                                  }
-                        })
+--mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
+--                                    { "Debian", debian.menu.Debian_menu.Debian },
+--                                    { "open terminal", terminal },
+--                                    { "Chrome", chrome },
+--                                    { "Editor", editor },
+--                                    { "Files", filebrowser }
+--                                  }
+--                        })
 
-mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
+--mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
+--                                     menu = mymainmenu })
+
+-- FROM https://github.com/terceiro/awesome-freedesktop/raw/master/README
+  -- applications menu
+  require('freedesktop.utils')
+  freedesktop.utils.terminal = terminal  -- default: "xterm"
+  freedesktop.utils.icon_theme = 'Faenza-Darkest' -- look inside /usr/share/icons/, default: nil (don't use icon theme)
+  require('freedesktop.menu')
+  require("debian.menu")
+
+  menu_items = freedesktop.menu.new()
+  myawesomemenu = {
+     { "manual", terminal .. " -e man awesome", freedesktop.utils.lookup_icon({ icon = 'help' }) },
+     { "edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua", freedesktop.utils.lookup_icon({ icon = 'package_settings' }) },
+     { "restart", awesome.restart, freedesktop.utils.lookup_icon({ icon = 'gtk-refresh' }) },
+     { "quit", awesome.quit, freedesktop.utils.lookup_icon({ icon = 'gtk-quit' }) }
+  }
+  table.insert(menu_items, { "awesome", myawesomemenu, beautiful.awesome_icon })
+  table.insert(menu_items, { "open terminal", terminal, freedesktop.utils.lookup_icon({icon = 'terminal'}) })
+  table.insert(menu_items, { "Debian", debian.menu.Debian_menu.Debian, freedesktop.utils.lookup_icon({ icon = 'debian-logo' }) })
+
+  mymainmenu = awful.menu.new({ items = menu_items, width = 150 })
+
+  mylauncher = awful.widget.launcher({ image = beautiful.awesome_icon,
                                      menu = mymainmenu })
+
+
+
+
 -- }}}
 
 -- {{{ Wibox
