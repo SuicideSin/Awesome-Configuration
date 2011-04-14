@@ -13,6 +13,9 @@ require("debian.menu")
 -- Expose (revelation)
 require("revelation")
 
+-- custom script for +-(col) and +-(master) buttons
+--require("SOMETHING")
+
 -- Initialize required programs -- NOTE: shit sucks, cocks everything up when Awesome needs to restart.
    -- xcompmgr for transparency support for gnome-do et al
 --awful.util.spawn_with_shell("cairo-compmgr &")
@@ -108,8 +111,10 @@ end
   -- applications menu
   require('freedesktop.utils')
   freedesktop.utils.terminal = terminal  -- default: "xterm"
-  freedesktop.utils.icon_theme = 'Faenza-Darkest' -- look inside /usr/share/icons/, default: nil (don't use icon theme)
+
+  freedesktop.utils.icon_theme = 'ffw' -- look inside /usr/share/icons/, default: nil (don't use icon theme)
   require('freedesktop.menu')
+
   require("debian.menu")
 
   menu_items = freedesktop.menu.new()
@@ -135,7 +140,7 @@ end
 
 -- {{{ Wibox
 -- Create a textclock widget
-mytextclock = awful.widget.textclock({ align = "right" })
+mytextclock = awful.widget.textclock({ align = "right" }, " %a %d %b, %I:%M %P ")
 
 -- Create a systray
 mysystray = widget({ type = "systray" })
@@ -266,13 +271,14 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
 
-    awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
+    -- layout management
+    awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end), -- expand/contract master window
     awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
-    awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1)      end),
+    awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1)      end), -- add/remove masters
     awful.key({ modkey, "Shift"   }, "l",     function () awful.tag.incnmaster(-1)      end),
-    awful.key({ modkey, "Control" }, "h",     function () awful.tag.incncol( 1)         end),
+    awful.key({ modkey, "Control" }, "h",     function () awful.tag.incncol( 1)         end), -- add/remove columns
     awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1)         end),
-    awful.key({ modkey,           }, "space", function () awful.layout.inc(layouts,  1) end),
+    awful.key({ modkey,           }, "space", function () awful.layout.inc(layouts,  1) end), -- move through layouts
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(layouts, -1) end),
 
     -- Prompt
@@ -342,10 +348,22 @@ for i = 1, keynumber do
                   end))
 end
 
+-- Clinet mouse bindings for move window, resize window, promote to master, remove from master
 clientbuttons = awful.util.table.join(
     awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
     awful.button({ modkey }, 1, awful.mouse.client.move),
-    awful.button({ modkey }, 3, awful.mouse.client.resize))
+    awful.button({ modkey }, 3, awful.mouse.client.resize) --,
+
+--    aweful.button({ modkey, "Shift" }, 1,
+--                    function ()
+--                        if client.master then
+--
+--                        else
+--
+--                        end
+--                    end
+--    )
+)
 
 -- Set keys
 root.keys(globalkeys)
@@ -399,12 +417,14 @@ client.add_signal("manage", function (c, startup)
     if not startup then
         -- Set the windows at the slave,
         -- i.e. put it at the end of others instead of setting it master.
-        -- awful.client.setslave(c)
+        awful.client.setslave(c)
 
         -- Put windows in a smart way, only if they does not set an initial position.
         if not c.size_hints.user_position and not c.size_hints.program_position then
-            awful.placement.no_overlap(c)
-            awful.placement.no_offscreen(c)
+            -- awful.placement.no_overlap(c)
+            -- awful.placement.no_offscreen(c)
+            aweful.placement.center_horizontal(c)
+            aweful.placement.center_vertical(c)
         end
     end
 end)
